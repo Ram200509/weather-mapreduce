@@ -510,9 +510,9 @@ Current Project
 
 ---
 
-# 14. 👨‍💻 Author
+# 14. 👨‍💻 Authors
 
-**Pranav Prayaga** | B.Tech CSE | Geethanjali College of Engineering and Technology
+**Pranav Prayaga** | **Sreenidhi** | **Dhanunjaya** | B.Tech CSE | Geethanjali College of Engineering and Technology
 
 ### Project
 
