@@ -18,7 +18,7 @@ heat = pd.read_csv(root / "output" / "extreme_heat_days.csv")
 rain = pd.read_csv(root / "output" / "rainfall_city_month.csv")
 
 st.title("Weather Data Analytics and Prediction Dashboard")
-st.caption("MapReduce analytics on 2018–2024 weather data for 6 Indian cities")
+st.caption("MapReduce analytics on weather data for 6 Indian cities, 1 Jan 2018 – 30 Sep 2026. Forecast year: 2027.")
 
 city = st.sidebar.selectbox("Select city", sorted(raw["City"].unique()))
 
@@ -42,11 +42,19 @@ st.bar_chart(summer.set_index("City")["Temp_Avg"])
 st.subheader("Extreme Heat Days by City")
 st.bar_chart(heat.set_index("City")["Extreme_Heat_Days"])
 
-st.subheader("Prediction: Next Year Average Temperature")
-X = city_year[["Year"]].values
-y = city_year["Avg_Temp"].values
-model = LinearRegression()
-model.fit(X, y)
-next_year = int(city_year["Year"].max()) + 1
-pred = model.predict(np.array([[next_year]]))[0]
-st.write(f"Predicted average temperature for **{city} in {next_year}**: **{pred:.2f} °C**")
+st.subheader("Prediction: 2027 Average Temperature")
+st.caption("Linear regression on yearly MapReduce averages. Training window ends 30 September 2026. 2026 is a partial year (Jan–Sep).")
+
+train = city_year[city_year["Year"] <= 2026].sort_values("Year")
+if len(train) >= 2:
+    model = LinearRegression()
+    model.fit(train[["Year"]].values, train["Avg_Temp"].values)
+    pred = float(model.predict(np.array([[2027]]))[0])
+    st.write(f"Predicted average temperature for **{city} in 2027**: **{pred:.2f} °C**")
+    chart = pd.concat([
+        train.assign(Series="Observed")[["Year", "Avg_Temp", "Series"]],
+        pd.DataFrame({"Year": [2027], "Avg_Temp": [round(pred, 2)], "Series": ["Predicted"]}),
+    ])
+    st.line_chart(chart.pivot_table(index="Year", columns="Series", values="Avg_Temp"))
+else:
+    st.warning("Not enough yearly points to fit 2027.")

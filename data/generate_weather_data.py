@@ -13,7 +13,7 @@ cities = {
 }
 
 start_date = datetime(2018, 1, 1)
-end_date = datetime(2026, 12, 31)
+end_date = datetime(2026, 9, 30)
 
 def get_season(month):
     if month in [12, 1, 2]:
