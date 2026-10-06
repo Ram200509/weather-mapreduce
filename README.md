@@ -6,56 +6,58 @@ A Big Data Analytics mini-project that processes multi-city historical weather r
 
 ## 📌 Project Overview
 
-| Item          | Details                                               |
-| ------------- | ----------------------------------------------------- |
-| 📅 Timeline   | 1 Jan 2018 → 31 Dec 2026                              |
-| 🔮 Prediction | 2027                                                  |
-| 🏙️ Cities    | Hyderabad, Delhi, Mumbai, Bangalore, Chennai, Kolkata |
-| 🐍 Language   | Python 3                                              |
-| ⚙️ Processing | MapReduce                                             |
-| 📊 Analytics  | Pandas                                                |
-| 🤖 Prediction | Scikit-learn Linear Regression                        |
-| 🖥️ Dashboard | Streamlit                                             |
-| 📁 Dataset    | Synthetic, climate-realistic                          |
+| Item                   | Details                                               |
+| ---------------------- | ----------------------------------------------------- |
+| 📅 **Timeline**        | 1 January 2018 → 30 September 2026                    |
+| 🔮 **Prediction Year** | 2027                                                  |
+| 🏙️ **Cities**         | Hyderabad, Delhi, Mumbai, Bangalore, Chennai, Kolkata |
+| 🐍 **Language**        | Python 3                                              |
+| ⚙️ **Processing**      | MapReduce                                             |
+| 📊 **Analytics**       | Pandas                                                |
+| 🤖 **Prediction**      | Scikit-learn Linear Regression                        |
+| 🖥️ **Dashboard**      | Streamlit                                             |
+| 📁 **Dataset**         | Synthetic, climate-realistic                          |
+
+> **Important:** 2026 is a **partial year** containing data only from January through September. October–December 2026 are not included in the dataset, so the model does not train on those excluded months.
 
 ---
 
 # 1. 🎯 Project Goal
 
-The project demonstrates how a large weather CSV can be processed using the **Map → Shuffle/Sort → Reduce** model.
+The project demonstrates how a large weather CSV dataset can be processed using the **Map → Shuffle/Sort → Reduce** programming model.
 
 ```text
-                 weather_data.csv
-                        │
-                        ▼
-                 ┌─────────────┐
-                 │   MAPPER    │
-                 │  mapper.py  │
-                 └──────┬──────┘
-                        │
-                        │ City_Year → Temp_Avg
-                        ▼
-                 ┌─────────────┐
-                 │ SHUFFLE /   │
-                 │    SORT     │
-                 └──────┬──────┘
-                        │
-                        ▼
-                 ┌─────────────┐
-                 │  REDUCER    │
-                 │ reducer.py  │
-                 └──────┬──────┘
-                        │
-                        ▼
-              avg_temp_city_year.csv
-                        │
-             ┌──────────┴──────────┐
-             ▼                     ▼
-      Extra Analytics        2027 Prediction
-             │                     │
-             └──────────┬──────────┘
-                        ▼
-               Streamlit Dashboard
+weather_data.csv
+        │
+        ▼
+┌─────────────┐
+│   MAPPER    │
+│  mapper.py  │
+└──────┬──────┘
+       │
+       │  City_Year → Temp_Avg
+       ▼
+┌─────────────┐
+│ SHUFFLE /   │
+│    SORT     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   REDUCER   │
+│ reducer.py  │
+└──────┬──────┘
+       │
+       ▼
+avg_temp_city_year.csv
+       │
+   ┌───┴──────────┐
+   ▼              ▼
+Extra Analytics   2027 Prediction
+   │              │
+   └──────┬───────┘
+          ▼
+  Streamlit Dashboard
 ```
 
 ### 💡 Viva Point
@@ -64,7 +66,7 @@ The project demonstrates how a large weather CSV can be processed using the **Ma
 
 ---
 
-# 2. Project Structure
+# 2. 📁 Project Structure
 
 ```text
 weather-mapreduce/
@@ -80,7 +82,7 @@ weather-mapreduce/
 │   ├── reducer.py
 │   ├── run_jobs.py
 │   ├── extra_jobs.py
-│   └── spark_jobs.py          # optional / unused
+│   └── spark_jobs.py          # Optional / unused
 │
 ├── output/
 │   ├── avg_temp_city_year.csv
@@ -96,7 +98,7 @@ weather-mapreduce/
 
 # 3. 🌡️ Dataset Generation
 
-`generate_weather_data.py` creates daily weather records for all six cities from **2018–2026**.
+`generate_weather_data.py` creates daily weather records for all six cities from **1 January 2018 to 30 September 2026**.
 
 ```text
 2018 ─┐
@@ -104,77 +106,98 @@ weather-mapreduce/
 2020  │
 2021  │
 2022  ├──→ Daily Records
-2023  │       ×
-2024  │    6 Cities
-2025  │       ↓
+2023  │         ×
+2024  │      6 Cities
+2025  │         ↓
 2026 ─┘   weather_data.csv
+(Jan–Sep only)
 ```
 
-Approximately:
+### 📊 Approximate Dataset Size
 
 ```text
-9 years × ~365 days × 6 cities
-             ≈
-        19,700 rows
+2018–2025: 8 full years × ~365 days × 6 cities
+2026:      273 days (1 Jan – 30 Sep) × 6 cities
+
+≈ 19,176 rows
 ```
 
-### Dataset Fields
+## Dataset Fields
+
+| Field               | Description                     |
+| ------------------- | ------------------------------- |
+| `Date`              | Date of the weather observation |
+| `City`              | City name                       |
+| `Temp_Max`          | Maximum temperature             |
+| `Temp_Min`          | Minimum temperature             |
+| `Temp_Avg`          | Average temperature             |
+| `Humidity`          | Relative humidity               |
+| `Rainfall_mm`       | Rainfall in millimeters         |
+| `Wind_Speed_kmh`    | Wind speed in km/h              |
+| `Weather_Condition` | Weather condition               |
+| `Season`            | Season classification           |
+
+## 🌤️ Seasonal Model
 
 ```text
-Date
-City
-Temp_Max
-Temp_Min
-Temp_Avg
-Humidity
-Rainfall_mm
-Wind_Speed_kmh
-Weather_Condition
-Season
+┌───────────────┐
+│    WINTER     │
+│   Dec – Feb   │
+│    Cooler     │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│    SUMMER     │
+│   Mar – May   │
+│      Hot      │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│    MONSOON    │
+│   Jun – Sep   │
+│ Rain + Humid  │
+└───────┬───────┘
+        │
+        ▼
+┌─────────────────┐
+│  POST-MONSOON   │
+│    Oct – Nov    │
+│  Lighter Rain   │
+└─────────────────┘
 ```
 
-### Seasonal Model
+For **2026**, winter, summer, and monsoon are present.
 
-```text
-        ┌───────────────┐
-        │     WINTER    │
-        │   Dec – Feb   │
-        │   Cooler      │
-        └───────┬───────┘
-                ↓
-┌───────────────┐       ┌───────────────┐
-│    SUMMER     │       │    MONSOON    │
-│   Mar – May   │──────▶│   Jun – Sep   │
-│     Hot       │       │ Rain + Humid  │
-└───────────────┘       └───────┬───────┘
-                                ↓
-                       ┌─────────────────┐
-                       │ POST-MONSOON    │
-                       │    Oct – Nov    │
-                       │   Lighter Rain  │
-                       └─────────────────┘
-```
+> **Note:** Post-monsoon (October–November) and December are **not generated for 2026**.
 
-Generate the dataset:
+### Generate the Dataset
 
 ```bash
 cd data
 py generate_weather_data.py
 ```
 
+The generator must use the following end date:
+
+```python
+end_date = datetime(2026, 9, 30)
+```
+
 ---
 
-# 4. ⚙️ MapReduce
+# 4. ⚙️ MapReduce Processing
 
-## Mapper — `mapper.py`
+## 🗺️ Mapper — `mapper.py`
 
-The Mapper reads each weather record and emits:
+The Mapper reads each weather record and emits a key-value pair:
 
 ```text
 City_Year    Temp_Avg
 ```
 
-Example:
+### Example
 
 ```text
 Hyderabad_2023    28.4
@@ -182,24 +205,15 @@ Delhi_2023        25.1
 Mumbai_2023       28.7
 ```
 
-Conceptually:
-
-```text
-CSV Row
-  │
-  ├── Date → Year
-  ├── City
-  └── Temp_Avg
-        │
-        ▼
-Hyderabad_2023 → 28.4
-```
+For 2026, the keys are generated only from the available **January–September** records.
 
 ---
 
-## Shuffle / Sort
+## 🔀 Shuffle / Sort
 
-The operating system's `sort` command groups identical keys:
+The operating system's `sort` command groups identical keys together.
+
+### Example
 
 ```text
 Bangalore_2023    23.4
@@ -209,11 +223,15 @@ Bangalore_2023    23.8
 Bangalore_2023    [23.4, 24.1, 23.8]
 ```
 
+This represents the **Shuffle/Sort** stage of MapReduce.
+
 ---
 
-## Reducer — `reducer.py`
+## 📉 Reducer — `reducer.py`
 
-The Reducer calculates:
+The Reducer calculates the average temperature for each city-year group.
+
+### Formula
 
 ```text
 Average Temperature
@@ -223,82 +241,44 @@ Sum of Temp_Avg
  Number of rows
 ```
 
-Example:
-
-```text
-Delhi_2023
-   │
-   ├── 24.5
-   ├── 25.2
-   └── 26.1
-        │
-        ▼
-     Average
-        │
-        ▼
-   Delhi_2023    25.27
-```
+The **2026 average is a partial-year average**, because the dataset contains only January–September 2026.
 
 ---
 
 # 5. 🔄 Complete MapReduce Command
 
+The complete pipeline can be executed manually using:
+
 ```bash
 py mapper.py < weather_data.csv | sort | py reducer.py
 ```
 
-Or simply:
+Or by using the job runner:
 
 ```bash
 cd mapreduce
 py run_jobs.py
 ```
 
-Output:
+### Output
 
 ```text
 output/avg_temp_city_year.csv
-```
-
-```text
-City_Year,Avg_Temp
-Bangalore_2018,23.79
-Bangalore_2019,23.84
-Chennai_2024,29.98
-Delhi_2026,24.71
-...
 ```
 
 ---
 
 # 6. 📊 Extra Analytics
 
-`extra_jobs.py` generates three additional datasets:
+`extra_jobs.py` performs additional analytics using the same dataset cutoff of **30 September 2026**.
 
-```text
-                 weather_data.csv
-                        │
-                        ▼
-                 ┌─────────────┐
-                 │ extra_jobs  │
-                 └──────┬──────┘
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-     Rainfall       Summer Temp    Heat Days
-          │             │             │
-          ▼             ▼             ▼
- rainfall_        summer_temp_    extreme_heat_
- city_month.csv   city.csv        days.csv
-```
+| Output File               | Analysis                               |
+| ------------------------- | -------------------------------------- |
+| `rainfall_city_month.csv` | Total rainfall by city and month       |
+| `summer_temp_city.csv`    | Average summer temperature by city     |
+| `extreme_heat_days.csv`   | Number of days where `Temp_Max > 38°C` |
 
-| Output                    | Analysis                     |
-| ------------------------- | ---------------------------- |
-| `rainfall_city_month.csv` | Total rainfall by city/month |
-| `summer_temp_city.csv`    | Average summer temperature   |
-| `extreme_heat_days.csv`   | Days where `Temp_Max > 38°C` |
-
-Run:
+Run the extra analytics using:
 
 ```bash
 py extra_jobs.py
@@ -306,85 +286,64 @@ py extra_jobs.py
 
 ---
 
-# 7. 🔮 2027 Prediction
+# 7. 🔮 2027 Temperature Prediction
 
-The MapReduce output provides yearly temperatures for **2018–2026**.
+The yearly MapReduce averages from **2018–2026** are used to train a **Linear Regression** model.
 
-These values are used to train a simple Linear Regression model.
-
-```text
-Average
-Temp.
-  │
-  │                       ● 2026
-  │                   ●
-  │               ●
-  │           ●
-  │       ●
-  │   ●
-  └──────────────────────────────▶ Year
-      2018                 2027
-                              │
-                              ▼
-                       🔮 Prediction
-```
-
-### Prediction Flow
+The model then predicts the average temperature for **2027**.
 
 ```text
-2018–2026 Yearly Averages
-           │
-           ▼
-    Linear Regression
-           │
-           ▼
-        Year = 2027
-           │
-           ▼
-   Predicted Avg Temperature
+2018 ─┐
+2019  │
+2020  │
+2021  │
+2022  ├──→ Linear Regression ──→ 2027 Prediction
+2023  │
+2024  │
+2025  │
+2026* ┘
 ```
 
-> ⚠️ This is a **trend forecast**, not an official meteorological prediction.
+> ***2026 contains January–September data only.**
+
+### ⚠️ Important
+
+This is a **trend forecast**, not an official meteorological prediction.
+
+The dashboard always predicts **2027** rather than dynamically predicting `max(year) + 1`.
 
 ---
 
 # 8. 🖥️ Streamlit Dashboard
 
-The dashboard provides interactive weather analytics for the selected city.
+The Streamlit dashboard presents the processed results and prediction interactively.
+
+The dashboard displays:
+
+* Historical yearly temperature trends
+* City-wise comparisons
+* Rainfall analytics
+* Summer temperature analysis
+* Extreme heat statistics
+* 2027 temperature prediction
+
+The dashboard caption clearly states:
 
 ```text
-┌──────────────────────────────────────────────┐
-│       🌦️ WEATHER ANALYTICS DASHBOARD        │
-├──────────────────────────────────────────────┤
-│ City: [ Hyderabad ▼ ]                        │
-├──────────────┬──────────────┬────────────────┤
-│ 🌡️ Avg Temp  │ 🌧️ Rainfall  │ 🔥 Heat Days  │
-├──────────────┴──────────────┴────────────────┤
-│                                              │
-│       📈 Yearly Average Temperature         │
-│                                              │
-├──────────────────────────────────────────────┤
-│       🌧️ Monthly Rainfall                   │
-│                                              │
-├──────────────────────────────────────────────┤
-│       ☀️ Summer Temperature Comparison       │
-│                                              │
-├──────────────────────────────────────────────┤
-│       🔥 Extreme Heat Days                  │
-│                                              │
-├──────────────────────────────────────────────┤
-│       🔮 2027 Predicted Temperature         │
-└──────────────────────────────────────────────┘
+Data Window: 1 January 2018 – 30 September 2026
+Forecast Year: 2027
 ```
 
-Run:
+### Run the Dashboard
+
+From the project root:
 
 ```bash
 cd D:\weather-mapreduce
 py -m streamlit run dashboard/app.py
 ```
 
-Dashboard:
+The dashboard will be available at:
 
 ```text
 http://localhost:8501
@@ -392,128 +351,164 @@ http://localhost:8501
 
 ---
 
-# 9. 🚀 Complete Execution
+# 9. 🚀 Complete Execution Pipeline
 
-```text
-┌─────────────────────────┐
-│ generate_weather_data   │
-└────────────┬────────────┘
-             ▼
-      weather_data.csv
-             │
-             ▼
-┌─────────────────────────┐
-│      run_jobs.py        │
-│ Mapper → Sort → Reducer │
-└────────────┬────────────┘
-             ▼
- avg_temp_city_year.csv
-             │
-             ├───────────────┐
-             ▼               ▼
-      extra_jobs.py     Linear Regression
-             │               │
-             ▼               ▼
-     Analytics CSVs      2027 Forecast
-             │               │
-             └───────┬───────┘
-                     ▼
-              Streamlit App
-```
-
-### Commands
+Run the complete project using the following commands:
 
 ```bash
 cd D:\weather-mapreduce
 
-# 1. Generate dataset
+# Generate weather dataset
 cd data
 py generate_weather_data.py
 
-# 2. MapReduce
+# Run MapReduce and extra analytics
 cd ..\mapreduce
 py run_jobs.py
-
-# 3. Extra analytics
 py extra_jobs.py
 
-# 4. Dashboard
+# Launch Streamlit dashboard
 cd ..
 py -m streamlit run dashboard/app.py
+```
+
+### Complete Workflow
+
+```text
+┌──────────────────────┐
+│ Generate Weather Data│
+│ generate_weather_data│
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Mapper           │
+│     mapper.py        │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Shuffle / Sort     │
+│      OS sort         │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      Reducer         │
+│     reducer.py       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ avg_temp_city_year   │
+│        .csv          │
+└──────────┬───────────┘
+           │
+      ┌────┴────┐
+      ▼         ▼
+┌───────────┐ ┌──────────────┐
+│  Extra    │ │   Linear     │
+│ Analytics │ │  Regression  │
+└─────┬─────┘ └──────┬───────┘
+      │              │
+      └──────┬───────┘
+             ▼
+    ┌─────────────────┐
+    │    Streamlit    │
+    │    Dashboard    │
+    └─────────────────┘
 ```
 
 ---
 
 # 10. 📈 Expected Insights
 
-The synthetic dataset is designed to demonstrate patterns such as:
+The analysis is expected to reveal patterns such as:
 
-* 🔥 **Delhi / Chennai:** hotter summers
-* 🌡️ **Bangalore:** milder temperatures
-* 🌧️ **Mumbai / Kolkata:** strong monsoon rainfall
-* 🌧️ **Chennai:** significant late-year rainfall
-* 🔥 **Bangalore:** fewer extreme-heat days
-* 🌧️ **Most cities:** rainfall concentrated around June–September
+* **Delhi and Chennai** generally experience hotter summer temperatures.
+* **Bangalore** generally has milder temperatures and fewer extreme-heat days.
+* **Mumbai and Kolkata** experience strong monsoon rainfall.
+* **Chennai** can experience significant late-year rainfall during complete years.
+* Rainfall in most cities is concentrated around the **June–September monsoon period**.
 
-> Final results should be taken from the newly generated output CSVs because values may change when the dataset is regenerated.
+> **Note:** Final numerical results depend on the generated dataset and should be obtained from the output CSV files after regeneration through **30 September 2026**.
 
 ---
 
 # 11. ⚠️ Limitations
 
-* Dataset is **synthetic**, not official IMD data.
-* MapReduce runs **locally**, not on a Hadoop cluster.
-* 2027 prediction uses **simple Linear Regression**.
-* Prediction does not model real atmospheric or monsoon conditions.
-* `Temp_Max > 38°C` is a **project-defined** extreme-heat threshold.
-* `spark_jobs.py` is optional and not part of the working pipeline.
+1. The dataset is **synthetic** and is not sourced from official IMD weather observations.
+2. Weather records stop at **30 September 2026**.
+3. The 2026 MapReduce average represents a **partial-year average**.
+4. MapReduce is implemented locally in Python and does **not run on a Hadoop cluster**.
+5. The 2027 prediction uses **simple Linear Regression**, not a specialized meteorological forecasting model.
+6. `Temp_Max > 38°C` is a **project-defined threshold** for identifying extreme heat days.
+7. `spark_jobs.py` is optional and is **not part of the working pipeline**.
+8. Synthetic data may not fully represent real-world weather variability, extreme events, or long-term climate behavior.
 
 ---
 
 # 12. 🔮 Future Scope
 
-```text
-Current Project
-      │
-      ├──→ Real IMD / NOAA Data
-      ├──→ Hadoop Streaming
-      ├──→ Apache Spark
-      ├──→ Advanced Forecasting
-      ├──→ Rainfall / Humidity Prediction
-      ├──→ Heatwave Detection
-      └──→ Cloud Deployment
-```
+The project can be extended in several ways:
+
+* Use real **IMD / NOAA** weather datasets.
+* Implement the pipeline using **Hadoop Streaming**.
+* Migrate large-scale processing to **Apache Spark**.
+* Predict rainfall and humidity.
+* Develop dedicated heatwave detection algorithms.
+* Incorporate additional meteorological variables.
+* Deploy the dashboard to a cloud platform.
+* Use advanced time-series forecasting models.
+* Process significantly larger datasets using distributed computing.
 
 ---
 
 # 13. 🎓 Key Viva Points
 
-### Why MapReduce?
+### ❓ Why MapReduce?
 
-> It demonstrates how large datasets can be processed through Map, Shuffle/Sort, and Reduce stages.
+> MapReduce provides a structured way to process large datasets through three major stages: **Map, Shuffle/Sort, and Reduce**.
 
-### Why Python instead of Hadoop?
+### ❓ Why Python instead of Hadoop?
 
-> Hadoop was attempted, but the local environment had compatibility issues. Python provides the same MapReduce logic without requiring a cluster.
+> Hadoop was attempted, but the environment was incompatible. Python was therefore used to implement the same MapReduce programming model locally.
 
-### Why Pandas?
+### ❓ Is this Hadoop?
 
-> Pandas is used for additional analytics after the core MapReduce aggregation.
+> No. This project implements the **MapReduce programming model locally in Python**. Hadoop is a distributed framework that can execute MapReduce jobs across a cluster.
 
-### Why Linear Regression?
+### ❓ Why stop the dataset in September 2026?
 
-> It is simple, interpretable, and suitable for demonstrating a basic trend-based prediction.
+> The project intentionally excludes October–December 2026. The pipeline therefore trains using data available through **30 September 2026** and forecasts the average temperature for **2027**.
 
-### Is the prediction accurate?
+### ❓ Why use Pandas?
 
-> It is a trend estimate, not a real meteorological forecast.
+> Pandas is used for additional analytics after the core MapReduce processing, including rainfall analysis, summer temperature analysis, and extreme-heat analysis.
+
+### ❓ Why Linear Regression?
+
+> Linear Regression provides a simple, interpretable method for identifying the overall yearly temperature trend and generating a basic 2027 forecast.
+
+### ❓ Is the 2027 prediction accurate?
+
+> It should not be considered an official weather prediction. It is a **trend-based estimate** generated using Linear Regression. The limitation is especially important because the 2026 training point contains only January–September data.
+
+### ❓ What happens to 2026?
+
+> 2026 is treated as a partial year. Only records from **1 January through 30 September 2026** are included in the dataset and MapReduce calculations.
+
+### ❓ What does the Reducer calculate?
+
+> The Reducer groups records by `City_Year` and calculates the average of `Temp_Avg` for each group.
 
 ---
 
 # 14. 👨‍💻 Authors
 
-**Pranav Prayaga** | **Sreenidhi** | **Dhanunjaya** | B.Tech CSE | Geethanjali College of Engineering and Technology
+**Pranav Prayaga** | **Sreenidhi** | **Dhanunjaya**
 
-### Project
+**B.Tech CSE**
+**Geethanjali College of Engineering and Technology**
 
-**Weather Data Analytics and Prediction Dashboard using MapReduce**
+### 🌦️ Weather Data Analytics and Prediction Dashboard using MapReduce
